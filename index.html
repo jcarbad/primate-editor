@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Primate Editor</title>
+    <link rel="stylesheet" href="css/photon.css">
+    <style>
+        textarea {
+            width: 100%; 
+            height: 100%; 
+            resize: none; 
+            border: none; 
+            outline:none; 
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="window">
+        <header class="toolbar toolbar-header">
+            <div class="toolbar-actions">
+                <div class="btn-group">
+                    <button class="btn btn-default" onclick="increaseFont()">
+                        <span class="icon icon-plus"></span>
+                    </button>
+                    <button class="btn btn-default" onclick="decreateFont()">
+                        <span class="icon icon-minus"></span>
+                    </button>
+                </div>
+
+                <button class="btn btn-default pull-right" onclick="saveText()">
+                    <span class="icon icon-download icon-text"></span>
+                    Save
+                </button>
+            </div>
+        </header>
+
+        <div class="window-content">
+            <textarea></textarea>
+        </div>
+    </div>
+
+    <script>
+        const electron = require('electron')
+        const {ipcRenderer} = electron
+
+        let textarea = document.querySelector('textarea')
+        let defaultFontSize = 20
+
+        function increaseFont() {
+            textarea.style.fontSize = `${ ++defaultFontSize }px`
+        }
+
+        function decreateFont() {
+            textarea.style.fontSize = `${ --defaultFontSize }px`
+        }
+
+        function saveText() {
+            let text = textarea.value
+            console.log(text)
+            ipcRenderer.send('save', text)
+        }
+
+        ipcRenderer.on('saved', (event, data) => {
+            if (data == 'success') {
+                textarea.style.backgroundColor = '#b2ff99'
+                setTimeout(_ => textarea.style.backgroundColor = '', 500)
+            }
+        })
+
+        ipcRenderer.on('save-clicked', _ => saveText()) 
+    </script>
+</body>
+</html>
